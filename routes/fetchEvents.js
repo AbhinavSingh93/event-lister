@@ -21,38 +21,35 @@ const connectToDatabase = async () => {
 const fetchEvents = async () => {
   try {
     console.log("Fetching events from Ticketmaster...");
+    
+    const response = await axios.get(
+      `https://app.ticketmaster.com/discovery/v2/events.json?city=Sydney&countryCode=AU&apikey=${process.env.TICKETMASTER_API_KEY}`
+    );
 
-    const locations = ["Sydney", "Brisbane"]; // Fetch events for both locations
+    const events = response.data._embedded?.events || [];
+    console.log(`Fetched ${events.length} events`);
 
-    for (const city of locations) {
-      const response = await axios.get(
-        `https://app.ticketmaster.com/discovery/v2/events.json?city=${city}&countryCode=AU&apikey=${process.env.TICKETMASTER_API_KEY}`
-      );
+    let newEventsCount = 0;
 
-      const events = response.data._embedded?.events || [];
-      console.log(`Fetched ${events.length} events for ${city}`);
+    for (let event of events) {
+      const existingEvent = await Event.findOne({ url: event.url });
 
-      let newEventsCount = 0;
-
-      for (let event of events) {
-        const existingEvent = await Event.findOne({ url: event.url });
-
-        if (!existingEvent) {
-          const newEvent = new Event({
-            title: event.name,
-            date: event.dates.start.localDate,
-            location: event._embedded.venues[0].name,
-            url: event.url,
-            city, // Set city dynamically (Sydney or Australia)
-            subscribers: [],
-          });
-          await newEvent.save();
-          newEventsCount++;
-        }
+      if (!existingEvent) {
+        const newEvent = new Event({
+          title: event.name,
+          date: event.dates.start.localDate,
+          location: event._embedded.venues[0].name,
+          url: event.url,
+          city: "Sydney",
+          subscribers: [], // Ensure subscribers array is always set
+        });
+        await newEvent.save();
+        newEventsCount++;
       }
-
-      console.log(`Added ${newEventsCount} new events for ${city}`);
     }
+
+    
+    console.log(`Added ${newEventsCount} new events`);
   } catch (error) {
     console.error("Error fetching events:", error.message);
   }
