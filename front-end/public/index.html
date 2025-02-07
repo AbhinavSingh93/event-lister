@@ -98,7 +98,7 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      fetch("https://event-backend-yxd8.onrender.com/api/events")
+      fetch("https://sydney-event-scraper-ws1t.onrender.com/api/events")
         .then(response => response.json())
         .then(data => {
           const eventsList = document.getElementById("events-list");
@@ -148,7 +148,7 @@
         return;
       }
 
-      fetch("https://event-backend-yxd8.onrender.com/api/events/subscribe", {
+      fetch("https://sydney-event-scraper-ws1t.onrender.com/api/events/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, eventId })
