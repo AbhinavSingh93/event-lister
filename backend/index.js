@@ -6,7 +6,7 @@ const cors = require("cors");
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use(express.static("front-end/public"));
+app.use(express.static("../front-end/public"));
 
 // Import Routes
 const eventRoutes = require("./routes/events");
